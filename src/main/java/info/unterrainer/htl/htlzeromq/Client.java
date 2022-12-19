@@ -1,9 +1,10 @@
 package info.unterrainer.htl.htlzeromq;
 
-import lombok.extern.slf4j.Slf4j;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Client {
@@ -12,9 +13,9 @@ public class Client {
 		try (ZContext context = new ZContext()) {
 			System.out.println("Connecting to hello world server");
 
-			//  Socket to talk to server
+			// Socket to talk to server
 			ZMQ.Socket socket = context.createSocket(SocketType.REQ);
-			socket.connect("tcp://localhost:5555");
+			socket.connect("tcp://172.17.220.125:5555");
 
 			for (int requestNbr = 0; requestNbr != 10; requestNbr++) {
 				String request = "Hello";
@@ -22,10 +23,7 @@ public class Client {
 				socket.send(request.getBytes(ZMQ.CHARSET), 0);
 
 				byte[] reply = socket.recv(0);
-				System.out.println(
-						"Received " + new String(reply, ZMQ.CHARSET) + " " +
-								requestNbr
-				);
+				System.out.println("Received " + new String(reply, ZMQ.CHARSET) + " " + requestNbr);
 			}
 		}
 	}
