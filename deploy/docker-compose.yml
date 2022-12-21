@@ -1,0 +1,15 @@
+version: '3'
+services:
+  backend:
+    image: gufalcon/htl-zeromq:latest
+    restart: unless-stopped
+    ports:
+      - "5555:5555"
+      - "5556:5556"
+    labels:
+      - "traefik.enable=false"
+  
+networks:
+  default:
+    external:
+      name: proxy_default
