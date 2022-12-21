@@ -1,6 +1,6 @@
 version: '3'
 services:
-  backend:
+  htl-zeromq:
     image: gufalcon/htl-zeromq:latest
     restart: unless-stopped
     ports:
@@ -8,7 +8,7 @@ services:
       - "5556:5556"
     labels:
       - "traefik.enable=false"
-  
+
 networks:
   default:
     external:

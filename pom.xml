@@ -214,8 +214,91 @@
 						</archive>
 					</configuration>
 				</plugin>
+				<plugin>
+					<groupId>com.google.code.maven-replacer-plugin</groupId>
+					<artifactId>replacer</artifactId>
+					<version>1.5.3</version>
+					<executions>
+						<execution>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>replace</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<file>Information.template</file>
+						<outputFile>src/main/java/${package-path}/Information.java</outputFile>
+						<replacements>
+							<replacement>
+								<token>@package@</token>
+								<value>${packg-string}</value>
+							</replacement>
+							<replacement>
+								<token>@name@</token>
+								<value>${name}</value>
+							</replacement>
+							<replacement>
+								<token>@buildTime@</token>
+								<value>${maven.build.timestamp}</value>
+							</replacement>
+							<replacement>
+								<token>@pomVersion@</token>
+								<value>${project.version}</value>
+							</replacement>
+						</replacements>
+					</configuration>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+					<plugin>
+						<groupId>org.eclipse.m2e</groupId>
+						<artifactId>lifecycle-mapping</artifactId>
+						<version>1.0.0</version>
+						<configuration>
+							<lifecycleMappingMetadata>
+								<pluginExecutions>
+									<pluginExecution>
+										<pluginExecutionFilter>
+											<groupId>
+												com.google.code.maven-replacer-plugin
+											</groupId>
+											<artifactId>
+												replacer
+											</artifactId>
+											<versionRange>
+												[1.5.3,)
+											</versionRange>
+											<goals>
+												<goal>replace</goal>
+											</goals>
+										</pluginExecutionFilter>
+										<action>
+											<ignore></ignore>
+										</action>
+									</pluginExecution>
+								</pluginExecutions>
+							</lifecycleMappingMetadata>
+						</configuration>
+					</plugin>
 			</plugins>
 		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.google.code.maven-replacer-plugin</groupId>
+				<artifactId>replacer</artifactId>
+			</plugin>
+		</plugins>
 	</build>
 
 	<licenses>
@@ -238,4 +321,88 @@
 			<organizationUrl>https://www.unterrainer.info</organizationUrl>
 		</developer>
 	</developers>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>${repos.id}</id>
+			<url>${repos.snapshot.url}</url>
+		</snapshotRepository>
+		<repository>
+			<id>${repos.id}</id>
+			<url>${repos.deployment.url}</url>
+		</repository>
+	</distributionManagement>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<activation>
+				<property>
+					<name>release</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-javadoc-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<artifactId>maven-source-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<artifactId>maven-compiler-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<artifactId>maven-dependency-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<artifactId>maven-jar-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>com.google.code.maven-replacer-plugin</groupId>
+						<artifactId>replacer</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>release-to-sonatype</id>
+			<activation>
+				<property>
+					<name>releaseSonatype</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-gpg-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<artifactId>maven-javadoc-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<artifactId>maven-source-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<artifactId>maven-compiler-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<artifactId>maven-dependency-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<artifactId>maven-jar-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>com.google.code.maven-replacer-plugin</groupId>
+						<artifactId>replacer</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
