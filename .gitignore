@@ -28,3 +28,5 @@ target/*
 .settings
 .classpath
 /target/
+
+src/main/java/info/unterrainer/htl/htlzeromq/Information.java
