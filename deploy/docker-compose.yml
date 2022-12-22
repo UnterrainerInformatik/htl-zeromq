@@ -4,8 +4,8 @@ services:
     image: gufalcon/htl-zeromq:latest
     restart: unless-stopped
     ports:
-      - "5555:5555"
       - "5556:5556"
+      - "5557:5557"
     labels:
       - "traefik.enable=false"
 

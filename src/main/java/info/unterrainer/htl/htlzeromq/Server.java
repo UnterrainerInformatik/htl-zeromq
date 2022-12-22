@@ -13,7 +13,7 @@ public class Server {
 		try (ZContext context = new ZContext()) {
 			// Socket to talk to clients
 			ZMQ.Socket socket = context.createSocket(SocketType.REP);
-			socket.bind("tcp://*:5555");
+			socket.bind("tcp://*:5556");
 			log.info("Starting Server.");
 			while (!Thread.currentThread().isInterrupted()) {
 				byte[] reply = socket.recv(0);
