@@ -4,9 +4,9 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>info.unterrainer.htl</groupId>
-	<artifactId>htl-zero-mq</artifactId>
+	<artifactId>htl-zeromq</artifactId>
 	<version>0.0.1</version>
-	<name>htl-zero-mq</name>
+	<name>htl-zeromq</name>
 	<packaging>jar</packaging>
 
 	<properties>
