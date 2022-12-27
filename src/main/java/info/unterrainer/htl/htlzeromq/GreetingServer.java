@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GreetingServer {
 
-	public static void main(String[] args) throws Exception {
+	public static void main(final String[] args) throws Exception {
 		try (ZContext context = new ZContext()) {
 			// Socket to talk to clients
 			ZMQ.Socket socket = context.createSocket(SocketType.REP);
@@ -20,7 +20,6 @@ public class GreetingServer {
 				log.info("Received " + ": [" + new String(reply, ZMQ.CHARSET) + "]");
 				String response = "world";
 				socket.send(response.getBytes(ZMQ.CHARSET), 0);
-				Thread.sleep(1); // Do some 'work'
 			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
