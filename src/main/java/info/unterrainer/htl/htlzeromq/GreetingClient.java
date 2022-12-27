@@ -7,7 +7,7 @@ import org.zeromq.ZMQ;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class Client {
+public class GreetingClient {
 
 	public static void main(final String[] args) throws Exception {
 		try (ZContext context = new ZContext()) {
