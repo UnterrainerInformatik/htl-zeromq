@@ -15,7 +15,7 @@ public class GreetingClient {
 
 			// Socket to talk to server
 			ZMQ.Socket socket = context.createSocket(SocketType.REQ);
-			socket.connect("tcp://unterrainer.info:5556");
+			socket.connect("tcp://localhost:5556");
 
 			for (int requestNbr = 0; requestNbr != 10; requestNbr++) {
 				String request = "Hello";
