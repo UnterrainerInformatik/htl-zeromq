@@ -51,7 +51,7 @@ public class ChatClient {
 			m = new ZMsg();
 			m.append(MessageType.POST.name());
 			m.append("topic");
-			m.append("Testmessage glubbi blubbi.");
+			m.append("Testmessage glubbi blubbi äöü.");
 			m.send(ctrlSocket, true);
 			waitForReply(ctrlSocket);
 

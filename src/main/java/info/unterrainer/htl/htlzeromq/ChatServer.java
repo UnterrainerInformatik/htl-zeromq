@@ -7,6 +7,7 @@ import java.util.Map;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZFrame;
+import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMsg;
 
@@ -129,8 +130,13 @@ public class ChatServer {
 
 	public static String messageAsString(final ZMsg msg) {
 		StringBuilder sb = new StringBuilder();
+		boolean isFirst = true;
 		for (ZFrame frame : msg) {
-			sb.append(frame.toString());
+			if (isFirst) {
+				sb.append(frame.toString());
+				isFirst = false;
+			} else
+				sb.append(frame.getString(ZMQ.CHARSET));
 			sb.append("\n");
 		}
 		return sb.toString();
