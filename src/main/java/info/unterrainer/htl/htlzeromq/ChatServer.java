@@ -100,6 +100,7 @@ public class ChatServer {
 
 		ZMsg m = new ZMsg();
 		m.append(room);
+		m.append(getUserName(userId));
 		m.append(message);
 		m.send(pushSocket, true);
 
@@ -108,6 +109,13 @@ public class ChatServer {
 		m.append(new byte[0]);
 		m.append("Message was posted.");
 		m.send(socket, true);
+	}
+
+	private String getUserName(byte[] userId) {
+		String name = users.get(userId);
+		if (name == null)
+			return userId.toString();
+		return name;
 	}
 
 	private void error(final Socket socket, final ZMsg msg, final String errorMessage, final Object... args) {
