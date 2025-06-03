@@ -84,6 +84,15 @@
 			<version>5.16.1</version>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- ZeroMQ -->
+		<!-- https://mvnrepository.com/artifact/org.zeromq/jeromq -->
+		<dependency>
+			<groupId>org.zeromq</groupId>
+			<artifactId>jeromq</artifactId>
+			<version>0.6.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
