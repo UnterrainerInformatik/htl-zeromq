@@ -1,4 +1,3 @@
-version: '3'
 services:
   htl-zeromq:
     image: gufalcon/htl-zeromq:latest
@@ -11,5 +10,5 @@ services:
 
 networks:
   default:
-    external:
-      name: proxy_default
+    name: proxy_default
+    external: true

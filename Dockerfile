@@ -1,7 +1,5 @@
 # Base Alpine Linux based image with OpenJDK JRE only
-FROM openjdk:18-alpine
-# make the image smaller by deleting some JDK-only files
-RUN rm -rf /opt/openjdk-18/jmods && rm -rf /opt/openjdk-18/lib/src.zip
+FROM eclipse-temurin:21-jdk-alpine-3.21
 # copy application (with libraries inside)
 COPY target/application.jar /
 COPY target/libs /libs/

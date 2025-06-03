@@ -1,0 +1,140 @@
+name: Build and publish to Maven Central 🔨
+
+on:
+  push:
+    branches:
+      - 'master'
+  workflow_dispatch:
+
+jobs:
+  bump:
+    uses: UnterrainerInformatik/bump-semver-workflow/.github/workflows/workflow.yml@master
+  build:
+    name: Build and deploy 🔨
+    runs-on: [self-hosted, Linux, X64]
+    needs: [bump]
+    steps:
+      - name: Init Runner ⚙️
+        uses: UnterrainerInformatik/init-runner-action@master
+
+      - name: Cache Maven packages 💾
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Set up JDK 21 ⚙️
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Conditionally setup Maven ⚙️
+        run: |
+          which mvn || (sudo apt update && sudo apt install -y maven)
+
+      - name: Update pom.xml version 💾
+        run: |
+          mvn versions:set -DnewVersion=${{ needs.bump.outputs.major_version }}.${{ needs.bump.outputs.minor_version }}.${{ needs.bump.outputs.build_version }} -DgenerateBackupPoms=false
+
+      - name: Build with Maven 🔨
+        run: mvn clean install --batch-mode --update-snapshots -Dmaven.test.skip=true -Prelease
+
+      - name: Rename JAR to application.jar
+        run: |
+          JAR_FILE=target/${{secrets.DOCKER_IMAGE_NAME}}-${{ needs.bump.outputs.major_version }}.${{ needs.bump.outputs.minor_version }}.${{ needs.bump.outputs.build_version }}.jar
+          echo "Using JAR: $JAR_FILE"
+          mv "$JAR_FILE" target/application.jar
+      - name: Upload application.jar 📦
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/application.jar
+      - name: Upload libs 📦
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-libs
+          path: target/libs
+
+
+  docker-build:
+    name: Build Docker Image 🐋
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download application.jar 📥
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: target
+      - name: Download libs 📥
+        uses: actions/download-artifact@v4
+        with:
+          name: app-libs
+          path: target/libs
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USER }}/${{ secrets.DOCKER_IMAGE_NAME}}:latest
+  deploy:
+    name: Deployment 💻
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Installing SSH key 🔑
+        uses: UnterrainerInformatik/setup-ssh-action@v1
+        with:
+          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+      - name: Create deploy directory 🚧
+        uses: UnterrainerInformatik/ssh-mkdir-action@v1
+        with:
+          dir: ${{ secrets.DEPLOY_DIR }}
+          user: ${{ secrets.DEPLOY_SSH_USER }}
+          host: ${{ secrets.DEPLOY_SERVER }}
+          port: ${{ secrets.DEPLOY_SSH_PORT }}
+      - name: Create data directory 🚧
+        uses: UnterrainerInformatik/ssh-mkdir-action@v1
+        with:
+          dir: ${{ secrets.DATA_DIR }}
+          user: ${{ secrets.DEPLOY_SSH_USER }}
+          host: ${{ secrets.DEPLOY_SERVER }}
+          port: ${{ secrets.DEPLOY_SSH_PORT }}
+      - name: Deploy using SSH 🚛
+        uses: UnterrainerInformatik/ssh-deploy-action@v1
+        with:
+          source: ./deploy/
+          target: ${{ secrets.DEPLOY_DIR }}
+          chmod-mask: 777
+          chmod-selector: ./deploy/*.sh
+          user: ${{ secrets.DEPLOY_SSH_USER }}
+          host: ${{ secrets.DEPLOY_SERVER }}
+          port: ${{ secrets.DEPLOY_SSH_PORT }}
+      - name: Run using SSH 🏃
+        uses: UnterrainerInformatik/ssh-run-action@v1
+        with:
+          dir: ${{ secrets.DEPLOY_DIR }}
+          file: up.sh
+          user: ${{ secrets.DEPLOY_SSH_USER }}
+          host: ${{ secrets.DEPLOY_SERVER }}
+          port: ${{ secrets.DEPLOY_SSH_PORT }}
