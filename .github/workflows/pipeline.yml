@@ -39,7 +39,7 @@ jobs:
           mvn versions:set -DnewVersion=${{ needs.bump.outputs.major_version }}.${{ needs.bump.outputs.minor_version }}.${{ needs.bump.outputs.build_version }} -DgenerateBackupPoms=false
 
       - name: Build with Maven 🔨
-        run: mvn clean install --batch-mode --update-snapshots -Dmaven.test.skip=true -Prelease
+        run: mvn clean install --batch-mode -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Prelease
 
       - name: Rename JAR to application.jar
         run: |
